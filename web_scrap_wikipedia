@@ -1,0 +1,25 @@
+from bs4 import BeautifulSoup
+import requests
+import pandas as pd
+url = 'https://en.wikipedia.org/wiki/Rape_in_India#Rape_statistics'
+page = requests.get(url)
+soup = BeautifulSoup(page.text, 'html')
+print(soup.prettify())
+table = soup.find_all('table')[1]
+col_titles = table.find_all('th')
+col_titles
+clean_headers = [th.get_text(strip=True) for th in col_titles]
+print(clean_headers)
+df = pd.DataFrame(columns=clean_headers)
+column_data = table.find_all('tr')
+for row in column_data[1:]:
+    row_data = row.find_all('td')
+    individual_row_data = [data.text.strip() for data in row_data]
+    length = len(df)
+    df.loc[length] = individual_row_data
+# 1. Save CSV file in the Colab environment
+df.to_csv('rape_cases.csv', index=False)
+
+# 2. Use this to download the file to your device
+from google.colab import files
+files.download('rape_cases.csv'
